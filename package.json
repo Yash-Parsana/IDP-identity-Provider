@@ -1,0 +1,31 @@
+{
+  "name": "idp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yash-Parsana/IDP-identity-Provider.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yash-Parsana/IDP-identity-Provider/issues"
+  },
+  "homepage": "https://github.com/Yash-Parsana/IDP-identity-Provider#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.1",
+    "uuid": "^9.0.0"
+  }
+}
