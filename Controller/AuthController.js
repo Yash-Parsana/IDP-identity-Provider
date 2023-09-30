@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const CryptoJS = require('crypto-js');
+const axios=require('axios')
+const Client = require('../Models/Client')
 
 const AuthorizationCodeGrant = async(req,res) => {
     const clientID = req.body.ClientID
@@ -36,32 +38,32 @@ const AuthorizationCodeGrant = async(req,res) => {
 }
 
 const checkRequestToResourceServer = async(req,res,next)=> {
-    const email = req.body.mail
+    const email = req.body.email
     const password = req.body.password
-    console.log("Email : ",email);
-    // const options = {
-    //     method: 'POST',
-    //     url: `${process.env.ResourceServer}/check`,
-    //     headers: {
-    //         'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //       },
-    //     body: `
-    //         {
-    //             "emial":"${email}",
-    //             "password":"${password}",
-    //         }
-    //     `
-    // };
-    // const isValid = await fetch(`${process.env.ResourceServer}/check`,options);
+    console.log("Email : ", email, " Password : ", password);
+    
 
-    if (true)
-    {
-        next();
-    }
-    else {
-        res.send("Wrong Credentials")
-    }
+    const serverUrl = `${process.env.ResourceServer}/user/login`;
+    const data = {
+        Email: email,
+        Password: password
+    };
+
+    axios.post(serverUrl, data)
+    .then(response => {
+        const result = response.data
+        
+        if (result.token)
+        {
+            next();
+        }
+        else {
+            res.send("Wrong Credentials")
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 
 }
 
@@ -77,29 +79,31 @@ const AccessToken = async(req, res) => {
             const decrypted = CryptoJS.AES.decrypt(encrypted, process.env.EncryptionKey).toString(CryptoJS.enc.Utf8);
             const decryptedObject = JSON.parse(decrypted);
             const email = decryptedObject.Credentials.email
-            const password = decryptedObject.Credentials.password
-            const ClientID=decryptedObject.ClientID
-            console.log(`Email : ${email} Password : ${password}`);
-            
+            const ClientID=decryptedObject.clientID
+
+            const client = await Client.findOne({ ClientID }).lean();
+            // console.log("Client : ",client);
+            const requirements = client.access
+
+            // console.log(`Email : ${email} Requirenments: ${requirements}`);
             const body={
-                "emial":email,
-                "password": password,
-                "ClientID":ClientID
+                "Email": email,
+                "token": process.env.IDP_SERVER_AUTH,
+                requirements
             }
-            const options = {
-                method: 'POST',
-                url: `${process.env.ResourceServer}/check`,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body:JSON.stringify(body)
-            };
-            const accessToken = await fetch(`${process.env.ResourceServer}/accessToken`,options);
+            const serverUrl=`${process.env.ResourceServer}/user/accessToken`
             
-            res.json({
-                "accessToken":accessToken
+            axios.post(serverUrl, body)
+            .then(response => {
+                const token = response.data.token
+                // console.log(response);
+                res.status(200).json({token,email})
             })
+            .catch(error => {
+                console.error('Error:', error);
+                res.send("Error Occured...")
+            });
+
         }
     }
     catch (err) {

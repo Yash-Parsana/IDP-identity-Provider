@@ -2,8 +2,7 @@ const express = require('express')
 const dotenv=require('dotenv')
 const mondoDb=require('./Database/db')
 const bodyParser=require('body-parser')
-const ejs=require("ejs")
-
+const cookieParser=require('cookie-parser')
 const app = express()
 
 dotenv.config({path:'./.env'})
@@ -13,6 +12,8 @@ app.use(express.static('public'))
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
+app.use(cookieParser())
+
 mondoDb()
 
 const DbRouter = require('./Router/dbRouter')

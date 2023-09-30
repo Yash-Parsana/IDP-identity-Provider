@@ -1,18 +1,428 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authenticate</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <form action="/api/auth/credential" method="post">
-        <input type="text" required name="email" id="email" placeholder="Email">
-        <input type="password" required name="password" id="password" placeholder="Password">
-        <input hidden name="ClientID" value="<%=ClientID%>">
-        <input hidden name="RedirectURI" value="<%=RedirectURI%>" >
-        <button type="submit">Authenticate</button>
-    </form>
-</body>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Authify</title>
+    <style>
+      /*==================== GOOGLE FONTS ====================*/
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap");
+
+      /*==================== VARIABLES CSS ====================*/
+      :root {
+        /*========== Colors ==========*/
+        --text-color: #000000;
+        --bg-color: #03a9f4;
+
+        /*========== Font and typography ==========*/
+        --body-font: "Poppins", sans-serif;
+        --normal-font-size: 0.938rem;
+      }
+
+      @media screen and (min-width: 968px) {
+        :root {
+          --normal-font-size: 1rem;
+        }
+      }
+
+      /*==================== BASE ====================*/
+      *,
+      *:after,
+      *:before {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+      }
+
+      body {
+        font-family: var(--body-font);
+        font-size: var(--normal-font-size);
+        background: hsl(243deg 41% 51%);
+        color: var(--text-color);
+        font-weight: 400;
+      }
+
+      /*==================== REUSABLE CSS CLASSES ====================*/
+      .container {
+        max-width: 1024px;
+        margin: 0 auto;
+        padding: 3rem 0;
+        /* min-height: 100vh; */
+        display: grid;
+        place-items: center;
+      }
+
+      .sec__container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 90%;
+        margin: 40px auto;
+        justify-content: center;
+        z-index: 1;
+      }
+
+      /*==================== SOCIAL SHARE ====================*/
+      .share__box {
+        --clr-primary: #03a9f4;
+        --clr-accent: #060606;
+        --clr-icon: #878787;
+        --clr-border: #ebedf9;
+        --clr-light: #ffffff;
+        --clr-dark: #111111;
+        --transition: all 0.2s ease;
+
+        --clr-facebook: #1877f2;
+        --clr-twitter: #46c1f6;
+        --clr-instagram: #e1306c;
+        --clr-whatsapp: #25d366;
+        --clr-linkedin: #0072b1;
+
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        width: 100%;
+        border-radius: 15px;
+        text-align: center;
+        padding: 20px;
+        background-color: var(--clr-light);
+      }
+      ::selection {
+        background-color: var(--clr-primary);
+        color: var(--clr-light);
+      }
+      .share__box header {
+        display: flex;
+        align-items: center;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--clr-border);
+      }
+      .share__box header h2 {
+        font-size: 1.4rem;
+        color: var(--clr-accent);
+      }
+      .share__box .content {
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .share__box .content p {
+        font-size: 1rem;
+        color: var(--clr-accent);
+      }
+
+      .share__box .content .field__wrp {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 6px;
+        border-radius: 4px;
+        border: 2px solid var(--clr-border);
+        transition: var(--transition);
+      }
+      .share__box .content .field__wrp.active {
+        border-color: var(--clr-primary);
+      }
+      .share__box .content .field__wrp i {
+        width: 20px;
+        color: var(--clr-icon);
+        transition: var(--transition);
+      }
+      .share__box .content .field__wrp.active i {
+        color: var(--clr-primary);
+      }
+      .share__box .content .field__wrp #inputField {
+        flex: 1;
+        padding: 0 10px;
+        height: 50px;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        max-width: calc(100% - 110px);
+        color: var(--clr-accent);
+        transition: var(--transition);
+      }
+      .share__box .content .field__wrp.active #inputField {
+        color: var(--clr-primary);
+      }
+      .share__box .content #copyBtn {
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 90px;
+        font-weight: 700;
+        border: 2px solid var(--clr-primary);
+        color: var(--clr-light);
+        background: var(--clr-primary);
+        transition: var(--transition);
+      }
+      .share__box .content  #copyBtn:hover {
+        background: var(--clr-light);
+        color: var(--clr-primary);
+      }
+
+      /*==================== MEDIA QUERIES ====================*/
+
+      /* For small devices */
+      @media screen and (min-width: 500px) {
+      }
+
+      /* For medium devices */
+      @media screen and (min-width: 767px) {
+      }
+     
+      /* gradient-bg-style */
+      .gradient-bg::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        border-radius: 100%;
+        top: 0%;
+        left: -50%;
+        box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        animation: animate_2 10s infinite;
+      }
+
+      .gradient-bg::after {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        border-radius: 100%;
+        top: 0%;
+        right: -50%;
+        bottom: -1000px;
+        box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        animation: animate_3 10s infinite;
+      }
+
+      /* animate-1 */
+      @keyframes animate_1 {
+        25% {
+          box-shadow: 0 150px 300px rgba(243, 86, 146, 1);
+        }
+
+        50% {
+          box-shadow: 0 150px 300px rgb(142, 68, 173);
+        }
+
+        75% {
+          box-shadow: 0 150px 300px rgba(93, 248, 240, 1);
+        }
+
+        100% {
+          box-shadow: 0 150px 300px rgba(243, 86, 146, 1);
+        }
+      }
+
+      @-webkit-keyframes animate_1 {
+        25% {
+          box-shadow: 0 150px 300px rgba(243, 86, 146, 1);
+        }
+
+        50% {
+          box-shadow: 0 150px 300px rgb(142, 68, 173);
+        }
+
+        75% {
+          box-shadow: 0 150px 300px rgba(93, 248, 240, 1);
+        }
+
+        100% {
+          box-shadow: 0 150px 300px rgba(243, 86, 146, 1);
+        }
+      }
+
+      /* animate-2 */
+      @keyframes animate_2 {
+        25% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+
+        50% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+
+        75% {
+          box-shadow: 0 0 350px 300px rgba(243, 86, 146, 0.7);
+        }
+
+        100% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+      }
+
+      @-webkit-keyframes animate_2 {
+        25% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+
+        50% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+
+        75% {
+          box-shadow: 0 0 350px 300px rgba(243, 86, 146, 0.7);
+        }
+
+        100% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+      }
+
+      /* animate-3 */
+      @keyframes animate_3 {
+        25% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+
+        50% {
+          box-shadow: 0 0 350px 300px rgba(243, 86, 146, 0.7);
+        }
+
+        75% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+
+        100% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+      }
+
+      @-webkit-keyframes animate_3 {
+        25% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+
+        50% {
+          box-shadow: 0 0 350px 300px rgba(243, 86, 146, 0.7);
+        }
+
+        75% {
+          box-shadow: 0 0 350px 300px rgb(142, 68, 173);
+        }
+
+        100% {
+          box-shadow: 0 0 350px 100px rgba(93, 248, 240, 1);
+        }
+      }
+   
+      *,
+      *:focus {
+        outline: none;
+      }
+
+      .form {
+        width: 380px;
+        margin: 0 auto;
+        /* margin-top: 150px; */
+        font-family: sans-serif;
+        background: #fff;
+      }
+      .form-item {
+        position: relative;
+        margin-bottom: 15px;
+      }
+      .form-item input {
+        display: block;
+        width: 350px;
+        height: 40px;
+        background: transparent;
+        border: solid 1px #ccc;
+        transition: all 0.3s ease;
+        padding: 0 15px;
+      }
+      .form-item input:focus {
+        border-color: blue;
+      }
+      .form-item label {
+        position: absolute;
+        cursor: text;
+        z-index: 2;
+        top: 13px;
+        left: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        background: #fff;
+        padding: 0 10px;
+        color: #999;
+        transition: all 0.3s ease;
+      }
+      .form-item input:focus + label,
+      .form-item input:valid + label {
+        font-size: 14px;
+        top: -5px;
+      }
+      .form-item input:focus + label {
+        color: rgba(0, 0, 255, 0.749);
+      }
+    </style>
+  </head>
+  <body>
+    <section class="container">
+      <section class="sec__container">
+        <!--==================== Social Share ====================-->
+        <div class="share__box">
+          <header>
+            <h2>Authify</h2>
+          </header>
+          <div class="content">
+            <p>Sign In with Authify</p>
+
+            <form action="/api/auth/credential" method="post" >
+
+                <div class="form">
+                  <div class="form-item">
+                    <p><%=ClientName%></p>
+                  </div>
+                  <input hidden name="ClientID" value="<%=ClientID%>">
+                  <input hidden name="RedirectURI" value="<%=RedirectURI%>" >
+                  <div class="form-item">
+                    <input
+                      type="text"
+                      id="email"
+                      name="email"
+                      autocomplete="off"
+                      required
+                      value=""
+                    />
+                    <label for="email">Email ID</label>
+                  </div>
+    
+                  <div class="form-item">
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      autocomplete="off"
+                      required
+                    />
+                    <label for="password">Password</label>
+                  </div>
+                </div>
+                <button type="submit" id="copyBtn">Login</button>
+                <p>This website use's your</p>
+                <p id="textcomehere"><%=access%></p>
+              </div>
+            </div>
+
+        </form>
+
+
+      </section>
+    </section>
+    <!-- JavaScript -->
+    <script>
+      // getting all attributes
+    </script>
+  </body>
 </html>
