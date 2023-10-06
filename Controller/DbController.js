@@ -24,7 +24,8 @@ const insertClient = async (req, res) => {
     
     try {
         await Client.updateOne({ ClientID }, { $set: { ClientName: name, Secret: secret,scope:scope,protocol:protocol,RedirectURIs:RedirectURIs,access:access } })
-        res.send("Registered");
+        res.json({client, "status" : "success"});
+        // res.send("Registered");
     }
     catch (err) {
         console.log(err);
@@ -147,24 +148,33 @@ const getClient = async(req, res, next) => {
     }
 
 }
+// Set the JWT token in a cookie
+const setJwtCookie = (response, token) => {
+    response.setHeader('Set-Cookie', `access_token=${token}; HttpOnly; SameSite=Lax; Expires=${new Date(Date.now() + 30 * 60 * 1000).toUTCString()}`);
+  };
+
 
 const loginClient = async(req,res) => {
     const { email, password } = req.body
     
     try {
         const client = await Client.findOne({ email }).lean()
-        // console.log(client);
+        console.log(client);
         if (client)
         {
             const check = await bcrypt.compare(password, client.password);
             if (check)
             {
                 const token=await jwt.sign({ClientID:client.ClientID},process.env.jwtKEY,{expiresIn:24*60*60})
+                console.log("token at login -    " + token);
+                // setJwtCookie(res, token);
                 res.cookie("jwtToken",token,{
                     httpOnly: true,
-                    sameSite:"strict"
+                    sameSite: true
                 })
-                res.send("You are Logged In");
+
+                res.json({client,status:"success"});
+              
             }
             else {
                 console.log("Invalie Request");

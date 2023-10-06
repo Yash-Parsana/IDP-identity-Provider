@@ -4,6 +4,8 @@ const mondoDb=require('./Database/db')
 const bodyParser=require('body-parser')
 const cookieParser=require('cookie-parser')
 const app = express()
+const cors = require("cors");
+app.use(cors());
 
 dotenv.config({path:'./.env'})
 app.set('view engine', 'ejs')
@@ -23,17 +25,17 @@ const AuthRouter=require('./Router/AuthRouter')
 app.use('/api/client', DbRouter)
 app.use('/api/auth',AuthRouter)
 
-app.get("/verify", (req,res) => {
-    const token = req.body.token
+// app.get("/verify", (req,res) => {
+//     const token = req.body.token
     
-    const data=require('jsonwebtoken').verify(token,process.env.jwtKEY)
-    console.log(data);
-})
+//     const data=require('jsonwebtoken').verify(token,process.env.jwtKEY)
+//     console.log(data);
+// })
 
 app.get('/page', (req,res) =>{
     res.render('login')
 })
 
-app.listen(3000, () => {
-    console.log("Server is listening on port : ",3000,"🏃");
+app.listen(5000, () => {
+    console.log("Server is listening on port : ",5000,"🏃");
 })
